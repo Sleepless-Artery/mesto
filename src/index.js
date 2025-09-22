@@ -1,3 +1,4 @@
+import "./index.css";
 const initialCards = [ 
     { 
       name: "Архыз", 
@@ -75,9 +76,11 @@ cardPopup.classList.add('popup_is-animated');
 imagePopup.classList.add('popup_is-animated');
 function openModal(popup) {
   popup.classList.add('popup_is-opened');
+  document.addEventListener('keydown', closeByEsc); // Добавляем слушатель
 }
 function closeModal(popup) {
   popup.classList.remove('popup_is-opened');
+  document.removeEventListener('keydown', closeByEsc); // Удаляем слушатель
 }
 const editProfileButton = document.querySelector('.profile__edit-button');
 const addCardButton = document.querySelector('.profile__add-button');
@@ -94,6 +97,9 @@ closeButtons.forEach(button => {
     closeModal(popup);
   });
 });
+
+
+
 function openProfilePopup() {
     nameInput.value = profileTitle.textContent;
     jobInput.value = profileDescription.textContent; 
@@ -104,6 +110,8 @@ const closeProfileButton = profilePopup.querySelector('.popup__close');
 closeProfileButton.addEventListener('click', () => {
     closeModal(profilePopup);
 });
+
+
 function handleProfileFormSubmit(evt) {
     evt.preventDefault(); 
     const name = nameInput.value;
@@ -126,6 +134,8 @@ const closeCardButton = cardPopup.querySelector('.popup__close');
 closeCardButton.addEventListener('click', () => {
     closeModal(cardPopup);
 });
+
+
 function handleCardFormSubmit(evt) {
     evt.preventDefault(); 
     const placeName = cardFormElement.querySelector('.popup__input_type_card-name').value;
@@ -139,3 +149,105 @@ function handleCardFormSubmit(evt) {
     closeModal(cardPopup);
   }
 cardFormElement.addEventListener('submit', handleCardFormSubmit);
+
+
+
+
+
+const saveButton = profileFormElement.querySelector('.popup__button');
+
+function toggleSaveButton() {
+  if (nameInput.validity.valid && jobInput.validity.valid) {
+      saveButton.removeAttribute('disabled');
+  } else {
+      saveButton.setAttribute('disabled', 'true');
+  }
+}
+
+function validateInput(input) {
+    const errorElement = document.querySelector(`.popup__error_type_${input.name}`);
+    if (!input.validity.valid) {
+        if (input.validity.valueMissing) {
+            errorElement.textContent = 'Вы пропустили это поле';
+        } else if (input.validity.tooShort) {
+            errorElement.textContent = `Минимальное количество символов: ${input.minLength}. Сейчас введено: ${input.value.length}.`;
+        } else {
+            errorElement.textContent = '';
+        }
+    } else {
+        errorElement.textContent = '';
+    }
+    
+    toggleSaveButton();
+}
+
+nameInput.addEventListener('input', () => {
+    validateInput(nameInput);
+});
+
+jobInput.addEventListener('input', () => {
+    validateInput(jobInput);
+});
+
+
+const placeNameInput = cardFormElement.querySelector('.popup__input_type_card-name');
+const linkInput = cardFormElement.querySelector('.popup__input_type_url');
+const saveCardButton = cardFormElement.querySelector('.popup__button');
+
+function toggleCardSaveButton() {
+  if (placeNameInput.validity.valid && linkInput.validity.valid) {
+      saveCardButton.removeAttribute('disabled');
+  } else {
+      saveCardButton.setAttribute('disabled', 'true');
+  }
+}
+
+function validateCardInput(input) {
+  const errorElement = document.querySelector(`.popup__error_type_${input.name}`);
+  
+  if (!input.validity.valid) {
+      if (input.validity.valueMissing) {
+          errorElement.textContent = 'Вы пропустили это поле';
+      } else if (input.name === 'link' && input.validity.typeMismatch) {
+          errorElement.textContent = 'Введите адрес сайта';
+      } else if (input.validity.tooShort) {
+          errorElement.textContent = `Минимальное количество символов: ${input.minLength}. Сейчас введено: ${input.value.length}.`;
+      } else {
+          errorElement.textContent = '';
+      }
+  } else {
+      errorElement.textContent = '';
+  }
+  
+  toggleCardSaveButton();
+}
+
+
+placeNameInput.addEventListener('input', () => {
+  validateCardInput(placeNameInput);
+});
+
+linkInput.addEventListener('input', () => {
+    validateCardInput(linkInput);
+});
+
+
+const popups = document.querySelectorAll('.popup');
+
+popups.forEach(popup => {
+    popup.addEventListener('click', (event) => {
+        if (event.target === popup) {
+            closeModal(popup);
+        }
+    });
+});
+
+function closeByEsc(evt) {
+  if (evt.key === "Escape") {
+      const openedPopup = document.querySelector('.popup_is-opened');
+      if (openedPopup) {
+          closeModal(openedPopup);
+      }
+  }
+}
+
